@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import math
-import base64  # Added for high-resolution blurred background
+import base64
 
 # -----------------------
 # Page Config
@@ -9,9 +9,9 @@ import base64  # Added for high-resolution blurred background
 st.set_page_config(page_title="Draw Results", page_icon="🎁", layout="wide")
 
 # -----------------------
-# High-Resolution Blurred Background
+# High-Resolution Background (no blur)
 # -----------------------
-def set_highres_blurred_bg(image_file):
+def set_background(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
@@ -21,25 +21,10 @@ def set_highres_blurred_bg(image_file):
         /* Main app background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: 100% 100%;  /* Stretch to fill viewport */
-            background-position: center;
+            background-size: cover;          /* Fill the viewport */
+            background-position: center;     /* Centered */
             background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        /* Blurred overlay */
-        .stApp::before {{
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/png;base64,{encoded}");
-            background-size: 100% 100%;  /* Stretch blurred layer */
-            background-position: center;
-            filter: blur(20px);  /* Strong blur for clarity */
-            transform: scale(1.2);  /* Avoid pixelation on large screens */
-            opacity: 0.35;
-            z-index: -1;
-            background-attachment: fixed;
+            background-attachment: fixed;    /* Stays fixed on scroll */
         }}
 
         /* Glass effect for main content */
@@ -53,8 +38,8 @@ def set_highres_blurred_bg(image_file):
         unsafe_allow_html=True
     )
 
-# Use your high-resolution logo/image
-set_highres_blurred_bg("pages/PRIVA_Logo-removebg-preview.png")
+# Use your image file as background
+set_background("pages/PRIVA_Logo-removebg-preview.png")
 
 # -----------------------
 # Title
@@ -112,9 +97,8 @@ with col1:
         if st.button("🎉 Draw Next Batch", use_container_width=True):
 
             batch_prizes = []
-
-            # 1️⃣ Draw returned prizes first
             returned_flag = {}
+
             if has_returned:
                 for item in st.session_state["used_pairs"]:
                     if item["returned"]:
@@ -123,14 +107,12 @@ with col1:
                         item["returned"] = False
                         item["number"] = None
 
-            # 2️⃣ Draw up to 5 new prizes
             elif has_available:
                 for _ in range(min(5, len(st.session_state["available_prizes"]))):
                     prize_name = st.session_state["available_prizes"].pop(0)
                     batch_prizes.append({"prize": prize_name, "number": None, "returned": False})
                     returned_flag[prize_name] = False
 
-            # 3️⃣ Assign random numbers
             if len(st.session_state["available_numbers"]) < len(batch_prizes):
                 st.error("Not enough numbers left for this batch.")
                 st.stop()
@@ -142,7 +124,6 @@ with col1:
                 if item not in st.session_state["used_pairs"]:
                     st.session_state["used_pairs"].append(item)
 
-            # Store returned flag
             for item in batch_prizes:
                 item["was_returned"] = returned_flag.get(item["prize"], False)
 
@@ -172,7 +153,7 @@ remaining_prizes = len(st.session_state["available_prizes"]) + sum(p["returned"]
 st.markdown(f"### 🧾 Session Info\n*Remaining Prizes:* {remaining_prizes}")
 
 # -----------------------
-# Current Draw (dynamic)
+# Current Draw
 # -----------------------
 if st.session_state["current_draw"]:
     st.markdown("---")
@@ -213,7 +194,7 @@ if st.session_state["used_pairs"]:
                         st.rerun()
 
 # -----------------------
-# Return confirmation modal
+# Return Confirmation Modal
 # -----------------------
 if st.session_state["confirm_return"]:
     item = st.session_state["confirm_return"]
