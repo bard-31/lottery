@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import math
-import base64  # <- added for blurred background
+import base64  # Added for high-resolution blurred background
 
 # -----------------------
 # Page Config
@@ -9,33 +9,37 @@ import base64  # <- added for blurred background
 st.set_page_config(page_title="Draw Results", page_icon="🎁", layout="wide")
 
 # -----------------------
-# Blurred Background
+# High-Resolution Blurred Background
 # -----------------------
-def set_blurred_bg(image_file):
+def set_highres_blurred_bg(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
     st.markdown(
         f"""
         <style>
+        /* Main app background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: cover;
+            background-size: 100% 100%;  /* Stretch to fill viewport */
             background-position: center;
             background-repeat: no-repeat;
+            background-attachment: fixed;
         }}
 
+        /* Blurred overlay */
         .stApp::before {{
             content: "";
             position: fixed;
             inset: 0;
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: cover;
+            background-size: 100% 100%;  /* Stretch blurred layer */
             background-position: center;
-            filter: blur(14px);
-            transform: scale(1.1);
+            filter: blur(20px);  /* Strong blur for clarity */
+            transform: scale(1.2);  /* Avoid pixelation on large screens */
             opacity: 0.35;
             z-index: -1;
+            background-attachment: fixed;
         }}
 
         /* Glass effect for main content */
@@ -49,8 +53,8 @@ def set_blurred_bg(image_file):
         unsafe_allow_html=True
     )
 
-# Use your image file
-set_blurred_bg("pages/PRIVA_Logo-removebg-preview.png")
+# Use your high-resolution logo/image
+set_highres_blurred_bg("pages/PRIVA_Logo-removebg-preview.png")
 
 # -----------------------
 # Title
