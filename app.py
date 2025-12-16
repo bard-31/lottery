@@ -78,4 +78,5 @@ if st.button("🚀 Start Draw Session", use_container_width=True):
     st.session_state["confirm_return"] = None
 
     st.success(f"✅ Session started with {len(prizes)} prizes")
-    st.switch_page("pages/2_🎁_Draw_Results.py")
+    st.switch_page("2_🎁_Draw_Results.py")
+
