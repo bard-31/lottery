@@ -1,176 +1,128 @@
 import streamlit as st
-import random
-import math
+import base64
 
-st.set_page_config(page_title="Draw Results", page_icon="🎁", layout="wide")
-st.title("🎁 Prize Draw Results")
+st.set_page_config(
+    page_title="Prize Draw Setup",
+    page_icon="🎁",
+    layout="wide"
+)
 
 # -----------------------
-# Session Validation
+# Blurred Background
 # -----------------------
-required_keys = ["available_numbers", "available_prizes", "original_numbers", "original_prizes"]
-for key in required_keys:
-    if key not in st.session_state:
-        st.error("❌ Session not found. Please start from the setup page.")
+def set_blurred_bg(image_file):
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/jpg;base64,{encoded}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }}
+
+        .stApp::before {{
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/jpg;base64,{encoded}");
+            background-size: cover;
+            background-position: center;
+            filter: blur(14px);
+            transform: scale(1.1);
+            z-index: -1;
+        }}
+
+        /* Glass effect for main content */
+        [data-testid="stAppViewContainer"] > .main {{
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 20px;
+            padding: 2rem;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_blurred_bg("background.jpg")
+
+# -----------------------
+# Title
+# -----------------------
+st.title("🎁 Prize Draw Setup")
+
+# -----------------------
+# Number Range
+# -----------------------
+st.subheader("🔢 Number Range (1 to N)")
+
+end_number = st.number_input(
+    "Enter the maximum number",
+    min_value=1,
+    value=50,
+    step=1
+)
+
+numbers = list(range(1, end_number + 1))
+
+# -----------------------
+# Prize Input
+# -----------------------
+st.subheader("🏆 Prize List (Up to 1,000 prizes)")
+
+prize_input = st.text_area(
+    "Enter ONE prize per line",
+    height=300,
+    placeholder="Prize 1\nPrize 2\nPrize 3\n..."
+)
+
+prizes = [p.strip() for p in prize_input.split("\n") if p.strip()]
+
+if len(prizes) == 0:
+    st.warning("Please enter at least one prize.")
+elif len(prizes) > 1000:
+    st.error("Maximum 1,000 prizes allowed.")
+
+# -----------------------
+# Prize Preview
+# -----------------------
+st.markdown("### Prize Preview")
+
+cols_per_row = 5
+rows = (len(prizes) + cols_per_row - 1) // cols_per_row
+
+for r in range(rows):
+    cols = st.columns(cols_per_row)
+    for c, prize in enumerate(prizes[r*cols_per_row:(r+1)*cols_per_row]):
+        with cols[c]:
+            st.text_input(
+                f"Prize {r*cols_per_row + c + 1}",
+                value=prize,
+                disabled=True
+            )
+
+# -----------------------
+# Start Session
+# -----------------------
+if st.button("🚀 Start Draw Session", use_container_width=True):
+    if len(prizes) == 0:
         st.stop()
 
-# -----------------------
-# Initialize session state
-# -----------------------
-st.session_state.setdefault("used_pairs", [])
-st.session_state.setdefault("current_draw", [])
-st.session_state.setdefault("confirm_return", None)
+    if len(numbers) < len(prizes):
+        st.error("Number range must be greater than or equal to number of prizes.")
+        st.stop()
 
-# -----------------------
-# Helper: render card
-# -----------------------
-def render_card(title, value, color, font_size, tooltip=None):
-    tip = f'title="{tooltip}"' if tooltip else ""
-    return f"""
-    <div {tip} style="
-        background:{color};
-        padding:18px;
-        border-radius:14px;
-        text-align:center;
-        color:white;
-        box-shadow:0 4px 10px rgba(0,0,0,0.15);
-        min-height:120px;
-        font-family:Segoe UI, sans-serif;
-        margin-bottom:12px;
-    ">
-        <div style="font-size:14px; opacity:0.85;">{title}</div>
-        <div style="font-size:{font_size}px; font-weight:bold;">{value}</div>
-    </div>
-    """
+    st.session_state["original_numbers"] = numbers[:]
+    st.session_state["original_prizes"] = prizes[:]
+    st.session_state["available_numbers"] = numbers[:]
+    st.session_state["available_prizes"] = prizes[:]
 
-# -----------------------
-# Controls
-# -----------------------
-col1, col2 = st.columns(2)
+    st.session_state["used_pairs"] = []
+    st.session_state["current_draw"] = []
+    st.session_state["confirm_return"] = None
 
-with col1:
-    has_returned = any(p["returned"] for p in st.session_state["used_pairs"])
-    has_available = len(st.session_state["available_prizes"]) > 0
-
-    if has_returned or has_available:
-        if st.button("🎉 Draw Next Batch", use_container_width=True):
-
-            batch_prizes = []
-
-            # 1️⃣ Draw returned prizes first (dynamic batch size)
-            returned_flag = {}  # track which items were returned
-            if has_returned:
-                for item in st.session_state["used_pairs"]:
-                    if item["returned"]:
-                        batch_prizes.append(item)
-                        returned_flag[item["prize"]] = True
-                        item["returned"] = False
-                        item["number"] = None  # will assign new number
-
-            # 2️⃣ Draw up to 5 new prizes if no returned prizes
-            elif has_available:
-                for _ in range(min(5, len(st.session_state["available_prizes"]))):
-                    prize_name = st.session_state["available_prizes"].pop(0)
-                    batch_prizes.append({"prize": prize_name, "number": None, "returned": False})
-                    returned_flag[prize_name] = False
-
-            # 3️⃣ Assign random numbers
-            if len(st.session_state["available_numbers"]) < len(batch_prizes):
-                st.error("Not enough numbers left for this batch.")
-                st.stop()
-
-            batch_numbers = random.sample(st.session_state["available_numbers"], len(batch_prizes))
-            for item, num in zip(batch_prizes, batch_numbers):
-                item["number"] = num
-                st.session_state["available_numbers"].remove(num)
-                if item not in st.session_state["used_pairs"]:
-                    st.session_state["used_pairs"].append(item)
-
-            # Store returned flag in current draw for highlighting
-            for item in batch_prizes:
-                item["was_returned"] = returned_flag.get(item["prize"], False)
-
-            st.session_state["current_draw"] = batch_prizes
-            st.balloons()
-    else:
-        st.markdown(
-            """<div style="background:#E53935;color:white;padding:14px;border-radius:8px;text-align:center;font-weight:bold;">
-            ❌ No More Prizes Left For This Draw
-            </div>""",
-            unsafe_allow_html=True
-        )
-
-with col2:
-    if st.button("🆕 New Session", use_container_width=True):
-        st.session_state["available_numbers"] = st.session_state["original_numbers"][:]
-        st.session_state["available_prizes"] = st.session_state["original_prizes"][:]
-        st.session_state["used_pairs"] = []
-        st.session_state["current_draw"] = []
-        st.session_state["confirm_return"] = None
-        st.rerun()
-
-# -----------------------
-# Session Info
-# -----------------------
-remaining_prizes = len(st.session_state["available_prizes"]) + sum(p["returned"] for p in st.session_state["used_pairs"])
-st.markdown(f"### 🧾 Session Info\n*Remaining Prizes:* {remaining_prizes}")
-
-# -----------------------
-# Current Draw (dynamic)
-# -----------------------
-if st.session_state["current_draw"]:
-    st.markdown("---")
-    st.subheader("🏆 Current Draw")
-
-    num_cols = max(len(st.session_state["current_draw"]), 1)
-    cols = st.columns(num_cols)
-    for i, item in enumerate(st.session_state["current_draw"]):
-        prize = item["prize"]
-        number = item["number"]
-        color = "#FF9800" if item.get("was_returned") else "#1E88E5"
-        with cols[i]:
-            st.markdown(render_card(prize, number, color, 34), unsafe_allow_html=True)
-
-# -----------------------
-# Numbers Already Drawn (clickable, rows of 10)
-# -----------------------
-if st.session_state["used_pairs"]:
-    st.markdown("---")
-    st.subheader("🚫 Numbers Already Drawn")
-
-    used_sorted = sorted(st.session_state["used_pairs"], key=lambda x: x["returned"])
-    rows = math.ceil(len(used_sorted) / 10)
-
-    for r in range(rows):
-        cols = st.columns(10)
-        for c, item in enumerate(used_sorted[r*10:(r+1)*10]):
-            with cols[c]:
-                prize = item["prize"]
-                number = item["number"]
-                returned = item["returned"]
-
-                if returned:
-                    st.markdown(render_card(prize, number, "#9E9E9E", 20, tooltip="Prize Returned"), unsafe_allow_html=True)
-                else:
-                    if st.button(f"{prize}\n{number}", key=f"select_{r}_{c}", use_container_width=True):
-                        st.session_state["confirm_return"] = item
-                        st.rerun()
-
-# -----------------------
-# Return confirmation modal
-# -----------------------
-if st.session_state["confirm_return"]:
-    item = st.session_state["confirm_return"]
-    st.markdown("---")
-    st.warning(f"⚠️ Return prize *{item['prize']}* to next draw?")
-
-    col_yes, col_no = st.columns(2)
-    with col_yes:
-        if st.button("✅ Yes", use_container_width=True):
-            item["returned"] = True
-            st.session_state["confirm_return"] = None
-            st.rerun()
-    with col_no:
-        if st.button("❌ Cancel", use_container_width=True):
-            st.session_state["confirm_return"] = None
-            st.rerun()
+    st.success(f"✅ Session started with {len(prizes)} prizes")
+    st.switch_page("pages/2_🎁_Draw_Results.py")
