@@ -10,8 +10,8 @@ st.set_page_config(
 # -----------------------
 # Blurred Background
 # -----------------------
-def set_blurred_bg(image_file):
-    with open(image_file, "rb") as f:
+def set_blurred_bg(ages/PRIVA_Logo-removebg-preview.png):
+    with open(ages/PRIVA_Logo-removebg-preview.png) as f:
         encoded = base64.b64encode(f.read()).decode()
 
     st.markdown(
