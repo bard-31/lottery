@@ -47,7 +47,7 @@ def set_blurred_bg(image_file):
         unsafe_allow_html=True
     )
 
-set_blurred_bg("PRIVA_Logo-removebg-preview.png")
+set_blurred_bg("pages/PRIVA_Logo-removebg-preview.png")
 
 # -----------------------
 # Title
