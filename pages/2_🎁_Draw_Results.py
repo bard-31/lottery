@@ -9,9 +9,9 @@ import base64
 st.set_page_config(page_title="Draw Results", page_icon="🎁", layout="wide")
 
 # -----------------------
-# High-Resolution Background (no blur)
+# Zoomed-Out Background (high-res)
 # -----------------------
-def set_background(image_file):
+def set_zoomed_bg(image_file):
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
@@ -21,10 +21,10 @@ def set_background(image_file):
         /* Main app background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: cover;          /* Fill the viewport */
-            background-position: center;     /* Centered */
+            background-size: contain;          /* Zoomed out image */
+            background-position: center;       /* Centered */
             background-repeat: no-repeat;
-            background-attachment: fixed;    /* Stays fixed on scroll */
+            background-attachment: fixed;      /* Stays fixed on scroll */
         }}
 
         /* Glass effect for main content */
@@ -38,8 +38,8 @@ def set_background(image_file):
         unsafe_allow_html=True
     )
 
-# Use your image file as background
-set_background("pages/PRIVA_Logo-removebg-preview.png")
+# Use your image file
+set_zoomed_bg("pages/PRIVA_Logo-removebg-preview.png")
 
 # -----------------------
 # Title
