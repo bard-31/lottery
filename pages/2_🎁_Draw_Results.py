@@ -11,8 +11,8 @@ st.set_page_config(page_title="Draw Results", page_icon="🎁", layout="wide")
 # -----------------------
 # Blurred Background
 # -----------------------
-def set_blurred_bg(PRIVA_Logo-removebg-preview):
-    with open(PRIVA_Logo-removebg-preview.png) as f:
+def set_blurred_bg(image_file):
+    with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
     st.markdown(
