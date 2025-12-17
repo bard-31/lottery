@@ -44,7 +44,7 @@ set_fullsize_bg("pages/bgluckydraw.jpg")
 # -----------------------
 # Title
 # -----------------------
-st.title("🎁 Prize Draw Results")
+st.title("🎁 Privasia's arena of champions - Lucky Draw")
 
 # -----------------------
 # Session Validation
