@@ -44,7 +44,21 @@ set_fullsize_bg("pages/bgluckydraw.jpg")
 # -----------------------
 # Title
 # -----------------------
-st.title("🎁 Privasia's arena of champions - Lucky Draw")
+st.markdown(
+    """
+    <h1 style="
+        color: #FFD54F;
+        text-align: center;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.45);
+        margin-bottom: 20px;
+    ">
+        🎁 Privasia's arena of champions - Lucky Draw
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
 # -----------------------
 # Session Validation
