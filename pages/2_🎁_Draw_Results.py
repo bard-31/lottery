@@ -21,7 +21,7 @@ def set_fullsize_bg(image_file):
         /* Main app background */
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
-            background-size: auto;          /* Original size */
+            background-size: 80%;          /* zoom out */
             background-position: center;    /* Centered */
             background-repeat: no-repeat;   /* No tiling */
             background-attachment: fixed;   /* Stays fixed on scroll */
