@@ -39,7 +39,7 @@ def set_fullsize_bg(image_file):
     )
 
 # Use your image file
-set_fullsize_bg("pages/PRIVA_Logo-removebg-preview.png")
+set_fullsize_bg("pages/bgluckydraw.jpg")
 
 # -----------------------
 # Title
