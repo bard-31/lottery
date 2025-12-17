@@ -55,7 +55,7 @@ st.markdown(
         text-shadow: 2px 2px 8px rgba(0,0,0,0.45);
         margin-bottom: 20px;
     ">
-        🎁 Privasia's arena of champions - Lucky Draw
+        🎁 PRIVASIA'S ARENA OF CHAMPION - LUCKY DRAW 🎁
     </h1>
     """,
     unsafe_allow_html=True
