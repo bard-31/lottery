@@ -32,6 +32,7 @@ def set_fullsize_bg(image_file):
             background: rgba(255, 255, 255, 0.75);
             border-radius: 20px;
             padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }}
         </style>
         """,
