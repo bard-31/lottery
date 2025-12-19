@@ -26,7 +26,7 @@ numbers = list(range(1, end_number + 1))
 # -----------------------
 # Prize Input (textarea for reliability)
 # -----------------------
-st.subheader("🏆 Prize List (Up to 1,000 prizes)")
+st.subheader("🏆 Prize List (Up to 55 prizes)")
 
 prize_input = st.text_area(
     "Enter ONE prize per line",
@@ -79,5 +79,6 @@ if st.button("🚀 Start Draw Session", use_container_width=True):
 
     st.success(f"✅ Session started with {len(prizes)} prizes")
     st.switch_page("pages/2_🎁_Draw_Results.py")
+
 
 
