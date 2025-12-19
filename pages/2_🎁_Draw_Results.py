@@ -174,7 +174,7 @@ if st.session_state["current_draw"]:
     st.markdown("---")
     st.subheader("🏆 Current Draw")
 
-    num_cols = max(len(st.session_state["current_draw"]), 50)
+    num_cols = max(len(st.session_state["current_draw"]), 20)
     cols = st.columns(num_cols)
     for i, item in enumerate(st.session_state["current_draw"]):
         prize = item["prize"]
