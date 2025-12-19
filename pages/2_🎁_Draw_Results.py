@@ -181,7 +181,7 @@ if st.session_state["current_draw"]:
         number = item["number"]
         color = "#FF9800" if item.get("was_returned") else "#1E88E5"
         with cols[i]:
-            st.markdown(render_card(prize, number, color, 34), unsafe_allow_html=True)
+            st.markdown(render_card(prize, number, color, 50), unsafe_allow_html=True)
 
 # -----------------------
 # Numbers Already Drawn
