@@ -178,19 +178,6 @@ if st.session_state["current_draw"]:
     cols = st.columns(num_cols)
     for i, item in enumerate(st.session_state["current_draw"]):
         prize = item["prize"]
-        st.markdown(
-    f"""
-    <p style="
-        font-size: 32px;
-        color: #FF5733;
-        font-weight: bold;
-        text-align: center;
-    ">
-        🎁 {prize}
-    </p>
-    """,
-    unsafe_allow_html=True
-)
         number = item["number"]
         color = "#FF9800" if item.get("was_returned") else "#1E88E5"
         with cols[i]:
