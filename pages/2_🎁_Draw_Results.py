@@ -181,7 +181,7 @@ if st.session_state["current_draw"]:
         number = item["number"]
         color = "#FF9800" if item.get("was_returned") else "#1E88E5"
         with cols[i]:
-            st.markdown(render_card(50, number, color, 50), unsafe_allow_html=True)
+            st.markdown(render_card(prize, number, color, 50), unsafe_allow_html=True)
 
 # -----------------------
 # Numbers Already Drawn
@@ -202,7 +202,7 @@ if st.session_state["used_pairs"]:
                 returned = item["returned"]
 
                 if returned:
-                    st.markdown(render_card(prize, number, "#9E9E9E", 20, tooltip="Prize Returned"), unsafe_allow_html=True)
+                    st.markdown(render_card(prize, number, "#9E9E9E", 50, tooltip="Prize Returned"), unsafe_allow_html=True)
                 else:
                     if st.button(f"{prize}\n{number}", key=f"select_{r}_{c}", use_container_width=True):
                         st.session_state["confirm_return"] = item
